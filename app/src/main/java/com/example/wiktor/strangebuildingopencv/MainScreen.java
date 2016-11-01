@@ -167,7 +167,7 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
         Mat imageToCompareWithPoints =mRgba.clone();
         Mat inputFramePoints = mRgba.clone();
         Mat mRgba1 = mRgba.clone();
-        Mat result = new Mat(mRgba.rows(),mRgba.cols(),mRgba.type());
+//        Mat result = new Mat(mRgba.rows(),mRgba.cols(),mRgba.type());
 
         FeatureDetector fast = FeatureDetector.create(FeatureDetector.FAST);
         fast.detect(mRgba, points);
@@ -177,7 +177,7 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
         Imgproc.cvtColor(imageFromRootToCompare, inputFramePoints, Imgproc.COLOR_RGBA2RGB, 4);
 
-        Features2d.drawKeypoints(mRgba1, points, mRgba);      //mRgba1
+//        Features2d.drawKeypoints(mRgba1, points, mRgba);      //mRgba1
 //
 //        Features2d.drawKeypoints(inputFramePoints, imagePoints, imageToCompareWithPoints); //inputFramePoints
 
@@ -190,12 +190,12 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
        // Imgproc.putText(mRgba, "=====TEST=====2013.09.15", new Point(100, 500), 3, 1, new Scalar(255, 0, 0, 255), 2);
 
 
-//        Imgproc.resize(imageFromRootToPrint, resizedImageToPrint, newSizeOfImageToPrint);
-/////        Imgproc.cvtColor(resizedImageToPrint, resizedImageToPrint, Imgproc.COLOR_RGB2RGBA);
-//        Mat submatOfmRgbaFrame = mRgba.submat(200, 400, 200, 400);
-//        resizedImageToPrint.copyTo(submatOfmRgbaFrame);
+        Imgproc.resize(imageFromRootToPrint, resizedImageToPrint, newSizeOfImageToPrint);
+        Imgproc.cvtColor(resizedImageToPrint, resizedImageToPrint, Imgproc.COLOR_RGB2RGBA);
+        Mat submatOfmRgbaFrame = mRgba.submat(200, 400, 200, 400);
+        resizedImageToPrint.copyTo(submatOfmRgbaFrame);
 
-        return result;
+        return mRgba;
     }
 
     private void DrawImage(Mat input, int x1, int x2, int y1, int y2, Size sz ){
