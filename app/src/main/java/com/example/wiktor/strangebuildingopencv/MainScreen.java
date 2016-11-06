@@ -21,7 +21,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Size;
 import org.opencv.core.CvType;
-
+import org.opencv.core.Core.MinMaxLocResult;
 
 import org.opencv.imgproc.Imgproc;
 
@@ -170,7 +170,13 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 //        Mat result = new Mat(mRgba.rows(),mRgba.cols(),mRgba.type());
 
         FeatureDetector fast = FeatureDetector.create(FeatureDetector.FAST);
+
+        FeatureDetector ORB = FeatureDetector.create(FeatureDetector.ORB);
+
+        int match_method = Imgproc.TM_SQDIFF;
+
         fast.detect(mRgba, points);
+
         fast.detect(imageFromRootToCompare, imagePoints);
 
         Imgproc.cvtColor(mRgba, mRgba1, Imgproc.COLOR_RGBA2RGB, 4);
@@ -189,11 +195,27 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 //        Log.w("myApp", mask_image.toString()) ;
        // Imgproc.putText(mRgba, "=====TEST=====2013.09.15", new Point(100, 500), 3, 1, new Scalar(255, 0, 0, 255), 2);
 
-
         Imgproc.resize(imageFromRootToPrint, resizedImageToPrint, newSizeOfImageToPrint);
         Imgproc.cvtColor(resizedImageToPrint, resizedImageToPrint, Imgproc.COLOR_RGB2RGBA);
         Mat submatOfmRgbaFrame = mRgba.submat(200, 400, 200, 400);
         resizedImageToPrint.copyTo(submatOfmRgbaFrame);
+
+        Mat result = new Mat(mRgba.rows(), mRgba.cols(), CvType.CV_32F);
+
+        Imgproc.matchTemplate(mRgba, mRgba, result, match_method);
+
+        Core.normalize(result, result, 0, 1, Core.NORM_MINMAX, -1, new Mat());
+
+        MinMaxLocResult mmr = Core.minMaxLoc(result);
+
+        Point matchLoc;
+        if (match_method == Imgproc.TM_SQDIFF || match_method == Imgproc.TM_SQDIFF_NORMED) {
+            matchLoc = mmr.minLoc;
+            Imgproc.putText(mRgba, "=====TEST=====działa", matchLoc, 3, 1, new Scalar(255, 0, 0, 255), 2);
+        } else {
+            matchLoc = mmr.maxLoc;
+            Imgproc.putText(mRgba, "=====TEST=====niedziała", new Point(100, 500), 3, 1, new Scalar(255, 0, 0, 255), 2);
+        }
 
         return mRgba;
     }
