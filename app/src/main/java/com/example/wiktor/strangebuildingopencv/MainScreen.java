@@ -23,6 +23,7 @@ import org.opencv.core.Size;
 import org.opencv.core.CvType;
 import org.opencv.core.Core.MinMaxLocResult;
 
+
 import org.opencv.imgproc.Imgproc;
 
 import org.opencv.core.MatOfKeyPoint;
@@ -203,13 +204,21 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
         Imgproc.cvtColor(imageFromRootToCompare, imageFromRootToCompare, Imgproc.COLOR_RGB2RGBA);
         Mat result = new Mat(mRgba.rows(), mRgba.cols(), CvType.CV_32F);
 
+
         Imgproc.matchTemplate(mRgba, imageFromRootToCompare, result, match_method);
 
+
+
         Core.normalize(result, result, 0, 1, Core.NORM_MINMAX, -1, new Mat());
+
+
 
         MinMaxLocResult mmr = Core.minMaxLoc(result);
 
         Point matchLoc;
+
+
+
         if (match_method == Imgproc.TM_SQDIFF || match_method == Imgproc.TM_SQDIFF_NORMED) {
             matchLoc = mmr.minLoc;
 
@@ -217,10 +226,14 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
             matchLoc = mmr.maxLoc;
         }
 
+           Log.w("myApp", Double.toString(mmr.minVal)) ;
 
-        Mat submatOfmRgbaFrame = mRgba.submat((int)matchLoc.x,(int)matchLoc.x+200, (int)matchLoc.y, (int)matchLoc.y+200);
-        resizedImageToPrint.copyTo(submatOfmRgbaFrame);
+        if(mmr.minVal!=0) {
 
+            //Mat submatOfmRgbaFrame = mRgba.submat((int) matchLoc.x, (int) matchLoc.x + 200, (int) matchLoc.y, (int) matchLoc.y + 200);
+            Mat submatOfmRgbaFrame = mRgba.submat(200,400,200,400);
+            resizedImageToPrint.copyTo(submatOfmRgbaFrame);
+        }
 
         return mRgba;
     }
