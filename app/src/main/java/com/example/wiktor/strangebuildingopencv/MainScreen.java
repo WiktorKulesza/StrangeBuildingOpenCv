@@ -140,6 +140,10 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
     }
 
     public void onDestroy() {
+         imageFromRootToPrint.release();
+         imageFromRootToCompare.release();
+
+        Log.w("myApp", "deloaded images");
         super.onDestroy();
         if (mOpenCvCameraView != null) {
             mOpenCvCameraView.disableView();
@@ -148,6 +152,8 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
     @Override
     public void onCameraViewStarted(int width, int height) {
+        LoadImagesFromFile();
+
     }
 
     @Override
@@ -156,8 +162,6 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        Log.w("myApp", "did it");
-        LoadImagesFromFile();
 
         mRgba = inputFrame.rgba();
 
@@ -238,17 +242,25 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
             Log.w("myAppMaxLoc", Double.toString(mmr.maxLoc.x)+Double.toString(mmr.maxLoc.y)) ;
             Log.w("myAppMinLoc", Double.toString(mmr.minLoc.x)+Double.toString(mmr.minLoc.y)) ;
 
-          //  Mat submatOfmRgbaFrame = mRgba.submat((int) matchLoc.x, (int) matchLoc.x + 200, (int) matchLoc.y, (int) matchLoc.y + 200);
+            Mat submatOfmRgbaFrame = mRgba.submat((int) matchLoc.x, (int) matchLoc.x + 200, (int) matchLoc.y, (int) matchLoc.y + 200);
            // Mat submatOfmRgbaFrame = mRgba.submat(200,400,200,400);
-          //  resizedImageToPrint.copyTo(submatOfmRgbaFrame);
+            resizedImageToPrint.copyTo(submatOfmRgbaFrame);
         }
 
-        Core.flip(mRgba,mRgba,1);
+
+
+      //  Core.flip(mRgba, mRgba, 1);
+
+       // imageFromRootToPrint.release();
+       // imageFromRootToCompare.release();
         return mRgba;
     }
 
     private void LoadImagesFromFile() {
+
         imageFromRootToPrint = Imgcodecs.imread(root + "/Images/3.jpg");
         imageFromRootToCompare = Imgcodecs.imread(root+"/images/1.jpg");
+
+        Log.w("myApp", "loaded images");
     }
 }
