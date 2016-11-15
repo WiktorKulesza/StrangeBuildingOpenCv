@@ -56,6 +56,7 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
     private static final String    TAG                 = "OCVSample::Activity";
 
+
     public static final int        JAVA_DETECTOR       = 0;
     public static final int        NATIVE_DETECTOR     = 1;
 
@@ -69,6 +70,11 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
     private float                  mRelativeFaceSize   = 0.2f;
     private int                    mAbsoluteFaceSize   = 0;
+
+    // images from memory
+    public File root = Environment.getExternalStorageDirectory();
+    Mat imageFromRootToPrint;
+    Mat imageFromRootToCompare;
 
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -88,19 +94,20 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
     private JavaCameraView mOpenCvCameraView;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "called onCreate");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_screen);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
         mOpenCvCameraView = (JavaCameraView) findViewById(R.id.MainActivityCameraView);
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
-
 
     }
 
@@ -149,16 +156,13 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+        Log.w("myApp", "did it");
+        LoadImagesFromFile();
+
         mRgba = inputFrame.rgba();
 
         Mat resizedImageToPrint =  new Mat();
         Size newSizeOfImageToPrint = new Size(200,200);
-
-    // geting images from memory
-
-        File root = Environment.getExternalStorageDirectory();
-        Mat imageFromRootToPrint = Imgcodecs.imread(root + "/Images/3.jpg");
-        Mat imageFromRootToCompare = Imgcodecs.imread(root+"/images/1.jpg");
 
      //   Log.w("myApp", sz.toString()) ;
 //
@@ -168,6 +172,7 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
         Mat imageToCompareWithPoints =mRgba.clone();
         Mat inputFramePoints = mRgba.clone();
         Mat mRgba1 = mRgba.clone();
+
 //        Mat result = new Mat(mRgba.rows(),mRgba.cols(),mRgba.type());
 
         FeatureDetector fast = FeatureDetector.create(FeatureDetector.FAST);
@@ -219,26 +224,31 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
 
 
-        if (match_method == Imgproc.TM_SQDIFF || match_method == Imgproc.TM_SQDIFF_NORMED) {
-            matchLoc = mmr.minLoc;
 
-        } else {
-            matchLoc = mmr.maxLoc;
+        if(mmr.minVal==0) {
+            if (match_method == Imgproc.TM_SQDIFF || match_method == Imgproc.TM_SQDIFF_NORMED) {
+                matchLoc = mmr.minLoc;
+
+            } else {
+                matchLoc = mmr.maxLoc;
+            }
+
+            Log.w("myAppmaxVal", Double.toString(mmr.maxVal)) ;
+            Log.w("myAppminVal", Double.toString(mmr.minVal)) ;
+            Log.w("myAppMaxLoc", Double.toString(mmr.maxLoc.x)+Double.toString(mmr.maxLoc.y)) ;
+            Log.w("myAppMinLoc", Double.toString(mmr.minLoc.x)+Double.toString(mmr.minLoc.y)) ;
+
+          //  Mat submatOfmRgbaFrame = mRgba.submat((int) matchLoc.x, (int) matchLoc.x + 200, (int) matchLoc.y, (int) matchLoc.y + 200);
+           // Mat submatOfmRgbaFrame = mRgba.submat(200,400,200,400);
+          //  resizedImageToPrint.copyTo(submatOfmRgbaFrame);
         }
 
-           Log.w("myApp", Double.toString(mmr.minVal)) ;
-
-        if(mmr.minVal!=0) {
-
-            //Mat submatOfmRgbaFrame = mRgba.submat((int) matchLoc.x, (int) matchLoc.x + 200, (int) matchLoc.y, (int) matchLoc.y + 200);
-            Mat submatOfmRgbaFrame = mRgba.submat(200,400,200,400);
-            resizedImageToPrint.copyTo(submatOfmRgbaFrame);
-        }
-
+        Core.flip(mRgba,mRgba,1);
         return mRgba;
     }
 
-    private void DrawImage(Mat input, int x1, int x2, int y1, int y2, Size sz ){
-
+    private void LoadImagesFromFile() {
+        imageFromRootToPrint = Imgcodecs.imread(root + "/Images/3.jpg");
+        imageFromRootToCompare = Imgcodecs.imread(root+"/images/1.jpg");
     }
 }
