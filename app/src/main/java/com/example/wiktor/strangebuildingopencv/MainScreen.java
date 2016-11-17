@@ -170,11 +170,12 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
      //   Log.w("myApp", sz.toString()) ;
 //
-        MatOfKeyPoint points = new MatOfKeyPoint();
-        MatOfKeyPoint imagePoints = new MatOfKeyPoint();
+//        MatOfKeyPoint points = new MatOfKeyPoint();
+//        MatOfKeyPoint imagePoints = new MatOfKeyPoint();
 
         Mat imageToCompareWithPoints =mRgba.clone();
         Mat inputFramePoints = mRgba.clone();
+
 //        Mat mRgba1 = mRgba.clone();
 
 //        Mat result = new Mat(mRgba.rows(),mRgba.cols(),mRgba.type());
