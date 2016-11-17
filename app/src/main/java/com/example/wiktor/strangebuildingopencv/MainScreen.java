@@ -175,21 +175,21 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
         Mat imageToCompareWithPoints =mRgba.clone();
         Mat inputFramePoints = mRgba.clone();
-        Mat mRgba1 = mRgba.clone();
+//        Mat mRgba1 = mRgba.clone();
 
 //        Mat result = new Mat(mRgba.rows(),mRgba.cols(),mRgba.type());
 
-        FeatureDetector fast = FeatureDetector.create(FeatureDetector.FAST);
+//        FeatureDetector fast = FeatureDetector.create(FeatureDetector.FAST);
 
-        FeatureDetector ORB = FeatureDetector.create(FeatureDetector.ORB);
+//        FeatureDetector ORB = FeatureDetector.create(FeatureDetector.ORB);
 
         int match_method = Imgproc.TM_SQDIFF;
 
-        fast.detect(mRgba, points);
+  //      fast.detect(mRgba, points);
 
-        fast.detect(imageFromRootToCompare, imagePoints);
+//        fast.detect(imageFromRootToCompare, imagePoints);
 
-        Imgproc.cvtColor(mRgba, mRgba1, Imgproc.COLOR_RGBA2RGB, 4);
+//        Imgproc.cvtColor(mRgba, mRgba1, Imgproc.COLOR_RGBA2RGB, 4);
 
         Imgproc.cvtColor(imageFromRootToCompare, inputFramePoints, Imgproc.COLOR_RGBA2RGB, 4);
 
