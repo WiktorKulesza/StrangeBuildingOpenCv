@@ -52,6 +52,10 @@ import org.opencv.core.MatOfByte;
 
 
 
+
+
+
+
 public class MainScreen extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
     private static final String    TAG                 = "OCVSample::Activity";
@@ -173,7 +177,7 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 //        MatOfKeyPoint points = new MatOfKeyPoint();
 //        MatOfKeyPoint imagePoints = new MatOfKeyPoint();
 
-        Mat imageToCompareWithPoints =mRgba.clone();
+// //       Mat imageToCompareWithPoints =mRgba.clone();
         Mat inputFramePoints = mRgba.clone();
 
 //        Mat mRgba1 = mRgba.clone();
@@ -184,7 +188,7 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
 //        FeatureDetector ORB = FeatureDetector.create(FeatureDetector.ORB);
 
-        int match_method = Imgproc.TM_SQDIFF;
+        int match_method = Imgproc.TM_CCOEFF;
 
   //      fast.detect(mRgba, points);
 
@@ -219,18 +223,18 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
 
 
-        Core.normalize(result, result, 0, 1, Core.NORM_MINMAX, -1, new Mat());
+       Core.normalize(result, result, 0, 1, Core.NORM_MINMAX, -1, new Mat());
 
 
 
-        MinMaxLocResult mmr = Core.minMaxLoc(result);
+      MinMaxLocResult mmr = Core.minMaxLoc(result);
 
         Point matchLoc;
 
 
 
 
-        if(mmr.minVal==0) {
+        //if(mmr.minVal!=0) {
             if (match_method == Imgproc.TM_SQDIFF || match_method == Imgproc.TM_SQDIFF_NORMED) {
                 matchLoc = mmr.minLoc;
 
@@ -238,15 +242,29 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
                 matchLoc = mmr.maxLoc;
             }
 
-            Log.w("myAppmaxVal", Double.toString(mmr.maxVal)) ;
-            Log.w("myAppminVal", Double.toString(mmr.minVal)) ;
-            Log.w("myAppMaxLoc", Double.toString(mmr.maxLoc.x)+Double.toString(mmr.maxLoc.y)) ;
-            Log.w("myAppMinLoc", Double.toString(mmr.minLoc.x)+Double.toString(mmr.minLoc.y)) ;
+           // Log.w("myAppmaxVal", Double.toString(mmr.maxVal)) ;
+            //Log.w("myAppminVal", Double.toString(mmr.minVal)) ;
+            //Log.w("myAppMaxLoc", Double.toString(mmr.maxLoc.x)+Double.toString(mmr.maxLoc.y)) ;
+            //Log.w("myAppMinLoc", Double.toString(mmr.minLoc.x)+Double.toString(mmr.minLoc.y)) ;
 
-            Mat submatOfmRgbaFrame = mRgba.submat((int) matchLoc.x, (int) matchLoc.x + 200, (int) matchLoc.y, (int) matchLoc.y + 200);
-           // Mat submatOfmRgbaFrame = mRgba.submat(200,400,200,400);
+            Log.w("myAppmatchLocx", Double.toString(matchLoc.x) +"   " +Double.toString(matchLoc.x+200));
+            Log.w("myAppmatchLocy", Double.toString(matchLoc.y)+ "   "+ Double.toString(matchLoc.y+200));
+
+            Mat submatOfmRgbaFrame = mRgba.submat(200,400,200,400);
+
+            if(mRgba.width()>(matchLoc.x+200) && mRgba.height()>(matchLoc.y+200)){
+
+                 submatOfmRgbaFrame = mRgba.submat((int) matchLoc.y, (int) matchLoc.y + 200, (int) matchLoc.x, (int) matchLoc.x + 200);
+            }
+
+            Log.w("myAppmatchLocx", Double.toString(matchLoc.x) +"   " +Double.toString(matchLoc.x+200));
+            Log.w("myAppmatchLocy", Double.toString(matchLoc.y)+ "   "+ Double.toString(matchLoc.y+200));
+
+            Imgproc.rectangle(mRgba, matchLoc, new Point(matchLoc.x + 200,
+                    matchLoc.y + 200), new Scalar(0, 255, 0));
+
             resizedImageToPrint.copyTo(submatOfmRgbaFrame);
-        }
+     //   }
 
 
 
@@ -259,7 +277,7 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
     private void LoadImagesFromFile() {
 
-        imageFromRootToPrint = Imgcodecs.imread(root + "/Images/3.jpg");
+        imageFromRootToPrint = Imgcodecs.imread(root + "/Images/2.jpg");
         imageFromRootToCompare = Imgcodecs.imread(root+"/images/1.jpg");
 
         Log.w("myApp", "loaded images");
