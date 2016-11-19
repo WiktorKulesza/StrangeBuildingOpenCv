@@ -232,23 +232,26 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
         Point matchLoc;
 
 
+        if(mmr.maxVal>0) {
+            //if (match_method == Imgproc.TM_SQDIFF || match_method == Imgproc.TM_SQDIFF_NORMED) {
+//                matchLoc = mmr.minLoc;
 
-
-        //if(mmr.minVal!=0) {
-            if (match_method == Imgproc.TM_SQDIFF || match_method == Imgproc.TM_SQDIFF_NORMED) {
-                matchLoc = mmr.minLoc;
-
-            } else {
+  //          } else {
                 matchLoc = mmr.maxLoc;
-            }
+    //        }
 
-           // Log.w("myAppmaxVal", Double.toString(mmr.maxVal)) ;
-            //Log.w("myAppminVal", Double.toString(mmr.minVal)) ;
-            //Log.w("myAppMaxLoc", Double.toString(mmr.maxLoc.x)+Double.toString(mmr.maxLoc.y)) ;
-            //Log.w("myAppMinLoc", Double.toString(mmr.minLoc.x)+Double.toString(mmr.minLoc.y)) ;
+            Log.w("myAppmaxVal", Double.toString(mmr.maxVal)) ;
+            Log.w("myAppminVal", Double.toString(mmr.minVal)) ;
+            Log.w("myAppmaxLoc", Double.toString(mmr.maxLoc.x)) ;
+            Log.w("myAppmaxLoc", Double.toString(mmr.maxLoc.y)) ;
+        Log.w("myAppminLocx", Double.toString(mmr.minLoc.x)) ;
+        Log.w("myAppminLocy", Double.toString(mmr.minLoc.y)) ;
 
-            Log.w("myAppmatchLocx", Double.toString(matchLoc.x) +"   " +Double.toString(matchLoc.x+200));
-            Log.w("myAppmatchLocy", Double.toString(matchLoc.y)+ "   "+ Double.toString(matchLoc.y+200));
+
+
+
+        //    Log.w("myAppmatchLocx", Double.toString(matchLoc.x) +"   " +Double.toString(matchLoc.x+200));
+        //    Log.w("myAppmatchLocy", Double.toString(matchLoc.y)+ "   "+ Double.toString(matchLoc.y+200));
 
             Mat submatOfmRgbaFrame = mRgba.submat(200,400,200,400);
 
@@ -264,8 +267,9 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
                     matchLoc.y + 200), new Scalar(0, 255, 0));
 
             resizedImageToPrint.copyTo(submatOfmRgbaFrame);
-     //   }
+        }
 
+        Log.w("myAppmaxVal", Double.toString(mmr.maxVal)) ;
 
 
       //  Core.flip(mRgba, mRgba, 1);
