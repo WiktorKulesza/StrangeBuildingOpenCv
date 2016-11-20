@@ -3,7 +3,6 @@ package com.example.wiktor.strangebuildingopencv;
 import android.os.Bundle;
 import android.os.Environment;
 
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -26,34 +25,9 @@ import org.opencv.core.Core.MinMaxLocResult;
 
 import org.opencv.imgproc.Imgproc;
 
-import org.opencv.core.MatOfKeyPoint;
-import org.opencv.features2d.Features2d;
-import org.opencv.imgproc.Imgproc;
-
 import org.opencv.imgcodecs.Imgcodecs;
 
 import java.io.File;
-import java.util.regex.Matcher;
-
-import org.opencv.features2d.Features2d.*;
-import org.opencv.features2d.FeatureDetector;
-import org.opencv.features2d.DescriptorExtractor;
-import org.opencv.features2d.DescriptorMatcher;
-import org.opencv.imgcodecs.Imgcodecs;
-
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.util.Log;
-import org.opencv.android.Utils;
-import org.opencv.core.MatOfDMatch;
-import org.opencv.core.Scalar;
-import org.opencv.core.MatOfByte;
-
-
-
-
-
 
 
 public class MainScreen extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
@@ -80,6 +54,11 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
     Mat imageFromRootToPrint;
     Mat imageFromRootToCompare;
 
+    int match_method = Imgproc.TM_CCOEFF;
+
+    int xValImageToPrint =100;
+    int yValImageToPrint =100;
+    Point matchLoc;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -170,50 +149,21 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
         mRgba = inputFrame.rgba();
 
         Mat resizedImageToPrint =  new Mat();
-        Size newSizeOfImageToPrint = new Size(200,200);
 
-     //   Log.w("myApp", sz.toString()) ;
-//
-//        MatOfKeyPoint points = new MatOfKeyPoint();
-//        MatOfKeyPoint imagePoints = new MatOfKeyPoint();
+      //  KeyPoint1();
 
-// //       Mat imageToCompareWithPoints =mRgba.clone();
+
         Mat inputFramePoints = mRgba.clone();
+      //  KeyPoints2();
 
-//        Mat mRgba1 = mRgba.clone();
-
-//        Mat result = new Mat(mRgba.rows(),mRgba.cols(),mRgba.type());
-
-//        FeatureDetector fast = FeatureDetector.create(FeatureDetector.FAST);
-
-//        FeatureDetector ORB = FeatureDetector.create(FeatureDetector.ORB);
-
-        int match_method = Imgproc.TM_CCOEFF;
-
-  //      fast.detect(mRgba, points);
-
-//        fast.detect(imageFromRootToCompare, imagePoints);
-
-//        Imgproc.cvtColor(mRgba, mRgba1, Imgproc.COLOR_RGBA2RGB, 4);
 
         Imgproc.cvtColor(imageFromRootToCompare, inputFramePoints, Imgproc.COLOR_RGBA2RGB, 4);
-
-//        Features2d.drawKeypoints(mRgba1, points, mRgba);      //mRgba1
-//
-//        Features2d.drawKeypoints(inputFramePoints, imagePoints, imageToCompareWithPoints); //inputFramePoints
-
-//        Imgproc.matchTemplate(mRgba, imageFromRootToCompare,result,1);
+      //  KeyPoint3();
 
 
-//        Core.absdiff(image, image, resizedImageToPrint);// tu jest błąd
-
-//        Log.w("myApp", mask_image.toString()) ;
-       // Imgproc.putText(mRgba, "=====TEST=====2013.09.15", new Point(100, 500), 3, 1, new Scalar(255, 0, 0, 255), 2);
-
+        Size newSizeOfImageToPrint = new Size(xValImageToPrint, yValImageToPrint);
         Imgproc.resize(imageFromRootToPrint, resizedImageToPrint, newSizeOfImageToPrint);
         Imgproc.cvtColor(resizedImageToPrint, resizedImageToPrint, Imgproc.COLOR_RGB2RGBA);
-   //     Mat submatOfmRgbaFrame = mRgba.submat(200, 400, 200, 400);
-   //     resizedImageToPrint.copyTo(submatOfmRgbaFrame);
 
         Imgproc.cvtColor(imageFromRootToCompare, imageFromRootToCompare, Imgproc.COLOR_RGB2RGBA);
         Mat result = new Mat(mRgba.rows(), mRgba.cols(), CvType.CV_32F);
@@ -221,15 +171,9 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
         Imgproc.matchTemplate(mRgba, imageFromRootToCompare, result, match_method);
 
-
-
        Core.normalize(result, result, 0, 1, Core.NORM_MINMAX, -1, new Mat());
 
-
-
       MinMaxLocResult mmr = Core.minMaxLoc(result);
-
-        Point matchLoc;
 
 
         if(mmr.maxVal>0) {
@@ -240,43 +184,32 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
                 matchLoc = mmr.maxLoc;
     //        }
 
-            Log.w("myAppmaxVal", Double.toString(mmr.maxVal)) ;
-            Log.w("myAppminVal", Double.toString(mmr.minVal)) ;
-            Log.w("myAppmaxLoc", Double.toString(mmr.maxLoc.x)) ;
-            Log.w("myAppmaxLoc", Double.toString(mmr.maxLoc.y)) ;
-        Log.w("myAppminLocx", Double.toString(mmr.minLoc.x)) ;
-        Log.w("myAppminLocy", Double.toString(mmr.minLoc.y)) ;
+//            Log.w("myAppmaxVal", Double.toString(mmr.maxVal)) ;
 
 
 
+            Mat submatOfmRgbaFrame = mRgba.submat(0, xValImageToPrint,0, yValImageToPrint);
 
-        //    Log.w("myAppmatchLocx", Double.toString(matchLoc.x) +"   " +Double.toString(matchLoc.x+200));
-        //    Log.w("myAppmatchLocy", Double.toString(matchLoc.y)+ "   "+ Double.toString(matchLoc.y+200));
-
-            Mat submatOfmRgbaFrame = mRgba.submat(200,400,200,400);
-
-            if(mRgba.width()>(matchLoc.x+200) && mRgba.height()>(matchLoc.y+200)){
-
-                 submatOfmRgbaFrame = mRgba.submat((int) matchLoc.y, (int) matchLoc.y + 200, (int) matchLoc.x, (int) matchLoc.x + 200);
-            }
-
-            Log.w("myAppmatchLocx", Double.toString(matchLoc.x) +"   " +Double.toString(matchLoc.x+200));
-            Log.w("myAppmatchLocy", Double.toString(matchLoc.y)+ "   "+ Double.toString(matchLoc.y+200));
-
-            Imgproc.rectangle(mRgba, matchLoc, new Point(matchLoc.x + 200,
-                    matchLoc.y + 200), new Scalar(0, 255, 0));
-
-            resizedImageToPrint.copyTo(submatOfmRgbaFrame);
+            DrawImageOnMatchingArea(resizedImageToPrint, matchLoc, submatOfmRgbaFrame);
         }
 
         Log.w("myAppmaxVal", Double.toString(mmr.maxVal)) ;
 
-
-      //  Core.flip(mRgba, mRgba, 1);
-
-       // imageFromRootToPrint.release();
-       // imageFromRootToCompare.release();
         return mRgba;
+    }
+
+    private void DrawImageOnMatchingArea(Mat resizedImageToPrint, Point matchLoc, Mat submatOfmRgbaFrame) {
+        if(mRgba.width()>(matchLoc.x+ xValImageToPrint) && mRgba.height()>(matchLoc.y+ yValImageToPrint)){
+
+             submatOfmRgbaFrame = mRgba.submat((int) matchLoc.y, (int) matchLoc.y + yValImageToPrint, (int) matchLoc.x, (int) matchLoc.x + xValImageToPrint);
+        }
+
+        Log.w("myAppmatchLocx", Double.toString(matchLoc.x) +"   " +Double.toString(matchLoc.x+200));
+        Log.w("myAppmatchLocy", Double.toString(matchLoc.y)+ "   "+ Double.toString(matchLoc.y+200));
+
+//        Imgproc.rectangle(mRgba, matchLoc, new Point(matchLoc.x + 200,matchLoc.y + 200), new Scalar(0, 255, 0));
+
+        resizedImageToPrint.copyTo(submatOfmRgbaFrame);
     }
 
     private void LoadImagesFromFile() {
@@ -286,4 +219,36 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
         Log.w("myApp", "loaded images");
     }
+
+    private void KeyPoint3() {
+        //        Features2d.drawKeypoints(mRgba1, points, mRgba);      //mRgba1
+//
+//        Features2d.drawKeypoints(inputFramePoints, imagePoints, imageToCompareWithPoints); //inputFramePoints
+
+//        Imgproc.matchTemplate(mRgba, imageFromRootToCompare,result,1);
+    }
+
+    private void KeyPoints2() {
+        //        Mat mRgba1 = mRgba.clone();
+
+//        Mat result = new Mat(mRgba.rows(),mRgba.cols(),mRgba.type());
+
+//        FeatureDetector fast = FeatureDetector.create(FeatureDetector.FAST);
+
+//        FeatureDetector ORB = FeatureDetector.create(FeatureDetector.ORB);
+
+        //      fast.detect(mRgba, points);
+
+//        fast.detect(imageFromRootToCompare, imagePoints);
+
+//        Imgproc.cvtColor(mRgba, mRgba1, Imgproc.COLOR_RGBA2RGB, 4);
+    }
+
+    private void KeyPoint1() {
+        //        MatOfKeyPoint points = new MatOfKeyPoint();
+//        MatOfKeyPoint imagePoints = new MatOfKeyPoint();
+
+// //       Mat imageToCompareWithPoints =mRgba.clone();
+    }
+
 }
