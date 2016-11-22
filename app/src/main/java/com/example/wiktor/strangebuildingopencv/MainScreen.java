@@ -22,6 +22,58 @@ import org.opencv.core.Size;
 import org.opencv.core.CvType;
 import org.opencv.core.Core.MinMaxLocResult;
 
+////
+import android.os.Bundle;
+import android.os.Environment;
+
+import android.provider.ContactsContract;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.SurfaceView;
+import android.view.Menu;
+import android.view.MenuItem;
+
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.CameraBridgeViewBase;
+import org.opencv.android.JavaCameraView;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Size;
+import org.opencv.core.CvType;
+
+
+import org.opencv.imgproc.Imgproc;
+
+import org.opencv.core.MatOfKeyPoint;
+import org.opencv.features2d.Features2d;
+import org.opencv.imgproc.Imgproc;
+
+import org.opencv.imgcodecs.Imgcodecs;
+
+import java.io.File;
+import java.util.regex.Matcher;
+
+import org.opencv.features2d.Features2d.*;
+import org.opencv.features2d.FeatureDetector;
+import org.opencv.features2d.DescriptorExtractor;
+import org.opencv.features2d.DescriptorMatcher;
+import org.opencv.imgcodecs.Imgcodecs;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.util.Log;
+import org.opencv.android.Utils;
+import org.opencv.core.MatOfDMatch;
+import org.opencv.core.Scalar;
+import org.opencv.core.MatOfByte;
+
+///
+
 
 import org.opencv.imgproc.Imgproc;
 
@@ -56,8 +108,8 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
     int match_method = Imgproc.TM_CCOEFF;
 
-    int xValImageToPrint =100;
-    int yValImageToPrint =100;
+    int xValImageToPrint =200;
+    int yValImageToPrint =200;
     Point matchLoc;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -147,19 +199,53 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
         mRgba = inputFrame.rgba();
+/*
+  //      MatchTemplateDrawing();
 
-        Mat resizedImageToPrint =  new Mat();
+//      KeyPoint1();
+        MatOfKeyPoint points = new MatOfKeyPoint();
+        MatOfKeyPoint imagePoints = new MatOfKeyPoint();
 
-      //  KeyPoint1();
-
+        Mat imageToCompareWithPoints =mRgba.clone();
 
         Mat inputFramePoints = mRgba.clone();
-      //  KeyPoints2();
 
+ //       KeyPoints2();
+        Mat mRgba1 = mRgba.clone();
+
+        Mat result = new Mat(mRgba.rows(),mRgba.cols(),mRgba.type());
+
+        FeatureDetector fast = FeatureDetector.create(FeatureDetector.FAST);
+
+        FeatureDetector ORB = FeatureDetector.create(FeatureDetector.ORB);
+
+        fast.detect(mRgba, points);
+
+        fast.detect(imageFromRootToCompare, imagePoints);
+
+        Imgproc.cvtColor(mRgba, mRgba1, Imgproc.COLOR_RGBA2RGB, 4);
+
+       // KeyPoint3();
+
+        Features2d.drawKeypoints(mRgba1, points, mRgba);      //mRgba1
+
+ //       Features2d.drawKeypoints(inputFramePoints, imagePoints, imageToCompareWithPoints); //inputFramePoints
+
+*/
+        MatchTemplateDrawing();
+
+        return mRgba;
+    }
+
+    private void MatchTemplateDrawing() {
+        Mat resizedImageToPrint =  new Mat();
+        //  KeyPoint1();
+
+        Mat inputFramePoints = mRgba.clone();
+        //  KeyPoints2();
 
         Imgproc.cvtColor(imageFromRootToCompare, inputFramePoints, Imgproc.COLOR_RGBA2RGB, 4);
-      //  KeyPoint3();
-
+        //  KeyPoint3();
 
         Size newSizeOfImageToPrint = new Size(xValImageToPrint, yValImageToPrint);
         Imgproc.resize(imageFromRootToPrint, resizedImageToPrint, newSizeOfImageToPrint);
@@ -171,22 +257,13 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
         Imgproc.matchTemplate(mRgba, imageFromRootToCompare, result, match_method);
 
-       Core.normalize(result, result, 0, 1, Core.NORM_MINMAX, -1, new Mat());
+        Core.normalize(result, result, 0, 1, Core.NORM_MINMAX, -1, new Mat());
 
-      MinMaxLocResult mmr = Core.minMaxLoc(result);
+        MinMaxLocResult mmr = Core.minMaxLoc(result);
 
 
         if(mmr.maxVal>0) {
-            //if (match_method == Imgproc.TM_SQDIFF || match_method == Imgproc.TM_SQDIFF_NORMED) {
-//                matchLoc = mmr.minLoc;
-
-  //          } else {
-                matchLoc = mmr.maxLoc;
-    //        }
-
-//            Log.w("myAppmaxVal", Double.toString(mmr.maxVal)) ;
-
-
+            matchLoc = mmr.maxLoc;
 
             Mat submatOfmRgbaFrame = mRgba.submat(0, xValImageToPrint,0, yValImageToPrint);
 
@@ -194,8 +271,6 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
         }
 
         Log.w("myAppmaxVal", Double.toString(mmr.maxVal)) ;
-
-        return mRgba;
     }
 
     private void DrawImageOnMatchingArea(Mat resizedImageToPrint, Point matchLoc, Mat submatOfmRgbaFrame) {
@@ -221,34 +296,38 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
     }
 
     private void KeyPoint3() {
-        //        Features2d.drawKeypoints(mRgba1, points, mRgba);      //mRgba1
-//
-//        Features2d.drawKeypoints(inputFramePoints, imagePoints, imageToCompareWithPoints); //inputFramePoints
+     /*           Features2d.drawKeypoints(mRgba1, points, mRgba);      //mRgba1
 
-//        Imgproc.matchTemplate(mRgba, imageFromRootToCompare,result,1);
+        Features2d.drawKeypoints(inputFramePoints, imagePoints, imageToCompareWithPoints); //inputFramePoints
+
+        Imgproc.matchTemplate(mRgba, imageFromRootToCompare,result,1);
+    */
     }
 
+
     private void KeyPoints2() {
-        //        Mat mRgba1 = mRgba.clone();
+      /*          Mat mRgba1 = mRgba.clone();
 
-//        Mat result = new Mat(mRgba.rows(),mRgba.cols(),mRgba.type());
+        Mat result = new Mat(mRgba.rows(),mRgba.cols(),mRgba.type());
 
-//        FeatureDetector fast = FeatureDetector.create(FeatureDetector.FAST);
+        FeatureDetector fast = FeatureDetector.create(FeatureDetector.FAST);
 
-//        FeatureDetector ORB = FeatureDetector.create(FeatureDetector.ORB);
+        FeatureDetector ORB = FeatureDetector.create(FeatureDetector.ORB);
 
-        //      fast.detect(mRgba, points);
+              fast.detect(mRgba, points);
 
-//        fast.detect(imageFromRootToCompare, imagePoints);
+        fast.detect(imageFromRootToCompare, imagePoints);
 
-//        Imgproc.cvtColor(mRgba, mRgba1, Imgproc.COLOR_RGBA2RGB, 4);
+        Imgproc.cvtColor(mRgba, mRgba1, Imgproc.COLOR_RGBA2RGB, 4);
+    */
     }
 
     private void KeyPoint1() {
-        //        MatOfKeyPoint points = new MatOfKeyPoint();
-//        MatOfKeyPoint imagePoints = new MatOfKeyPoint();
+      /*  MatOfKeyPoint points = new MatOfKeyPoint();
+        MatOfKeyPoint imagePoints = new MatOfKeyPoint();
 
-// //       Mat imageToCompareWithPoints =mRgba.clone();
+        Mat imageToCompareWithPoints =mRgba.clone();
+    */
     }
 
 }
