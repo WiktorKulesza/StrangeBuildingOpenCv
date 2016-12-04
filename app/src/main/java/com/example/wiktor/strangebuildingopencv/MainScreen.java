@@ -23,34 +23,12 @@ import org.opencv.core.CvType;
 import org.opencv.core.Core.MinMaxLocResult;
 
 ////
-import android.os.Bundle;
-import android.os.Environment;
-
-import android.provider.ContactsContract;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.SurfaceView;
-import android.view.Menu;
-import android.view.MenuItem;
-
-import org.opencv.android.BaseLoaderCallback;
-import org.opencv.android.CameraBridgeViewBase;
-import org.opencv.android.JavaCameraView;
-import org.opencv.android.LoaderCallbackInterface;
-import org.opencv.android.OpenCVLoader;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Size;
-import org.opencv.core.CvType;
 
 
 import org.opencv.imgproc.Imgproc;
 
 import org.opencv.core.MatOfKeyPoint;
 import org.opencv.features2d.Features2d;
-import org.opencv.imgproc.Imgproc;
 
 import org.opencv.imgcodecs.Imgcodecs;
 
@@ -71,15 +49,6 @@ import org.opencv.android.Utils;
 import org.opencv.core.MatOfDMatch;
 import org.opencv.core.Scalar;
 import org.opencv.core.MatOfByte;
-
-///
-
-
-import org.opencv.imgproc.Imgproc;
-
-import org.opencv.imgcodecs.Imgcodecs;
-
-import java.io.File;
 
 
 public class MainScreen extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
@@ -199,41 +168,62 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
         mRgba = inputFrame.rgba();
-/*
-  //      MatchTemplateDrawing();
 
 //      KeyPoint1();
         MatOfKeyPoint points = new MatOfKeyPoint();
-        MatOfKeyPoint imagePoints = new MatOfKeyPoint();
+        MatOfKeyPoint imageFromRootToCompareKeyPoints = new MatOfKeyPoint();
 
-        Mat imageToCompareWithPoints =mRgba.clone();
+        //Mat imageToCompareWithPoints =mRgba.clone();
 
-        Mat inputFramePoints = mRgba.clone();
+        //Mat inputFramePoints = mRgba.clone();
 
  //       KeyPoints2();
         Mat mRgba1 = mRgba.clone();
+        Mat imageFromRootToCompareKeyPointsMat = imageFromRootToCompare.clone();
 
-        Mat result = new Mat(mRgba.rows(),mRgba.cols(),mRgba.type());
+//        Mat result = new Mat(mRgba.rows(),mRgba.cols(),mRgba.type());
 
         FeatureDetector fast = FeatureDetector.create(FeatureDetector.FAST);
 
-        FeatureDetector ORB = FeatureDetector.create(FeatureDetector.ORB);
+//        FeatureDetector ORB = FeatureDetector.create(FeatureDetector.ORB);
 
         fast.detect(mRgba, points);
 
-        fast.detect(imageFromRootToCompare, imagePoints);
+//        fast.detect(imageFromRootToCompare, imageFromRootToCompareKeyPoints);
 
         Imgproc.cvtColor(mRgba, mRgba1, Imgproc.COLOR_RGBA2RGB, 4);
+
+//        Imgproc.cvtColor(imageFromRootToCompare, imageFromRootToCompareKeyPointsMat, Imgproc.COLOR_RGBA2RGB, 4);
 
        // KeyPoint3();
 
         Features2d.drawKeypoints(mRgba1, points, mRgba);      //mRgba1
+//        Features2d.drawKeypoints(imageFromRootToCompareKeyPointsMat, imageFromRootToCompareKeyPoints, imageFromRootToCompare);
 
- //       Features2d.drawKeypoints(inputFramePoints, imagePoints, imageToCompareWithPoints); //inputFramePoints
+ //       Features2d.drawKeypoints(inputFramePoints, imageFromRootToCompareKeyPoints, imageToCompareWithPoints); //inputFramePoints
 
-*/
-        MatchTemplateDrawing();
+        //////////////////////////////////////////////////////////////////////////////
+        Mat resizedImageToPrint =  new Mat();
+        //  KeyPoint1();
 
+        Mat inputFramePoints = mRgba.clone();
+        //  KeyPoints2();
+
+        Imgproc.cvtColor(imageFromRootToCompare, inputFramePoints, Imgproc.COLOR_RGBA2RGB, 4);
+        //  KeyPoint3();
+
+        Size newSizeOfImageToPrint = new Size(mRgba.cols(), mRgba.rows());
+        Imgproc.resize(imageFromRootToCompare, resizedImageToPrint, newSizeOfImageToPrint);
+        Imgproc.cvtColor(resizedImageToPrint, resizedImageToPrint, Imgproc.COLOR_RGB2RGBA);
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//        MatchTemplateDrawing();
+                fast.detect(resizedImageToPrint, imageFromRootToCompareKeyPoints);
+                Imgproc.cvtColor(resizedImageToPrint, imageFromRootToCompareKeyPointsMat, Imgproc.COLOR_RGBA2RGB, 4);
+        Features2d.drawKeypoints(imageFromRootToCompareKeyPointsMat, imageFromRootToCompareKeyPoints, imageFromRootToCompareKeyPointsMat);
+
+
+
+      //  return imageFromRootToCompareKeyPointsMat;
         return mRgba;
     }
 
