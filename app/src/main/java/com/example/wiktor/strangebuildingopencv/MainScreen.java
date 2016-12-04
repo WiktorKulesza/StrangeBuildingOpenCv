@@ -24,15 +24,18 @@ import org.opencv.core.Core.MinMaxLocResult;
 
 ////
 
-
 import org.opencv.imgproc.Imgproc;
 
 import org.opencv.core.MatOfKeyPoint;
+
 import org.opencv.features2d.Features2d;
+
+
 
 import org.opencv.imgcodecs.Imgcodecs;
 
 import java.io.File;
+import java.util.LinkedList;
 import java.util.regex.Matcher;
 
 import org.opencv.features2d.Features2d.*;
@@ -40,7 +43,7 @@ import org.opencv.features2d.FeatureDetector;
 import org.opencv.features2d.DescriptorExtractor;
 import org.opencv.features2d.DescriptorMatcher;
 import org.opencv.imgcodecs.Imgcodecs;
-
+import org.opencv.core.DMatch;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -168,7 +171,36 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
         mRgba = inputFrame.rgba();
+        Mat matInBacgroundToFind = imageFromRootToCompare.clone();
 
+        FeatureDetector Orbdetector = FeatureDetector.create(FeatureDetector.ORB);
+        DescriptorExtractor OrbExtractor = DescriptorExtractor.create(DescriptorExtractor.ORB);
+        DescriptorMatcher matcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_HAMMING);
+
+        Mat descriptorsMRGBA = new Mat();
+        Mat descriptorsBackGround = new Mat();
+
+        MatOfKeyPoint keyPointMRGBA = new MatOfKeyPoint();
+        MatOfKeyPoint keyPointBackGround= new MatOfKeyPoint();
+
+        Orbdetector.detect(mRgba, keyPointMRGBA);
+        Orbdetector.detect(matInBacgroundToFind, keyPointBackGround);
+
+        OrbExtractor.compute(mRgba, keyPointMRGBA, descriptorsMRGBA);
+        OrbExtractor.compute(matInBacgroundToFind, keyPointBackGround, descriptorsBackGround);
+
+        MatOfDMatch matches = new MatOfDMatch();
+        matcher.match(descriptorsMRGBA,descriptorsBackGround,matches);
+
+        LinkedList<DMatch> good_matches = new LinkedList<DMatch>();
+        MatOfDMatch gm = new MatOfDMatch();
+        for (int i=0;i<descriptorsBackGround.rows();i++){
+            if(matchesList.get(i).distance<3*min_dist// 3*min_dist is my threshold here
+            good_matches.addLast(matchesList.get(i));
+        }
+
+    gm.fromList(good_matches);
+/*
 //      KeyPoint1();
         MatOfKeyPoint points = new MatOfKeyPoint();
         MatOfKeyPoint imageFromRootToCompareKeyPoints = new MatOfKeyPoint();
@@ -222,9 +254,19 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
         Features2d.drawKeypoints(imageFromRootToCompareKeyPointsMat, imageFromRootToCompareKeyPoints, imageFromRootToCompareKeyPointsMat);
 
 
+        DescriptorMatcher matcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_HAMMING);
+
+
+        MatOfDMatch matches = new MatOfDMatch();
+        matcher.match(descriptors1,descriptors2,matches);
+
 
       //  return imageFromRootToCompareKeyPointsMat;
-        return mRgba;
+*/
+
+
+
+    return mRgba;
     }
 
     private void MatchTemplateDrawing() {
