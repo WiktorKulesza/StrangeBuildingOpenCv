@@ -35,7 +35,9 @@ import org.opencv.features2d.Features2d;
 import org.opencv.imgcodecs.Imgcodecs;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Matcher;
 
 import org.opencv.features2d.Features2d.*;
@@ -189,17 +191,36 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
         OrbExtractor.compute(mRgba, keyPointMRGBA, descriptorsMRGBA);
         OrbExtractor.compute(matInBacgroundToFind, keyPointBackGround, descriptorsBackGround);
 
+
         MatOfDMatch matches = new MatOfDMatch();
         matcher.match(descriptorsMRGBA,descriptorsBackGround,matches);
 
+
+
         LinkedList<DMatch> good_matches = new LinkedList<DMatch>();
         MatOfDMatch gm = new MatOfDMatch();
-        for (int i=0;i<descriptorsBackGround.rows();i++){
-            if(matchesList.get(i).distance<3*min_dist// 3*min_dist is my threshold here
-            good_matches.addLast(matchesList.get(i));
-        }
 
+        List<DMatch> matchesList = new ArrayList<DMatch>();
+        matchesList = matches.toList();
+
+        if(matchesList.isEmpty()==true){
+            Log.w("myApp", "EMPTYYYYYYYYYYYYYYYYYY!!!");
+        }else {
+
+            Log.w("myApp", "FoundSomething!!!!!!!!");
+
+            for (int i = 0; i < descriptorsBackGround.rows(); i++) {
+                if(matchesList.get(i).distance<80) // 3*min_dist is my threshold here
+                good_matches.addLast(matchesList.get(i));
+
+                Log.w("myApp", matchesList.get(i).toString());
+            }
+        }
     gm.fromList(good_matches);
+
+
+
+
 /*
 //      KeyPoint1();
         MatOfKeyPoint points = new MatOfKeyPoint();
