@@ -35,6 +35,7 @@ import org.opencv.features2d.Features2d;
 import org.opencv.imgcodecs.Imgcodecs;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -175,6 +176,8 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
         mRgba = inputFrame.rgba();
         Mat matInBacgroundToFind = imageFromRootToCompare.clone();
 
+        Log.w("myAppmax_dist", "workin!!!");
+
         FeatureDetector Orbdetector = FeatureDetector.create(FeatureDetector.ORB);
         DescriptorExtractor OrbExtractor = DescriptorExtractor.create(DescriptorExtractor.ORB);
         DescriptorMatcher matcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_HAMMING);
@@ -195,8 +198,55 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
         MatOfDMatch matches = new MatOfDMatch();
         matcher.match(descriptorsMRGBA,descriptorsBackGround,matches);
 
+        double max_dist = 0;
+        double min_dist = 100;
+
+        List<DMatch> matchesList = matches.toList();
 
 
+        for( int i = 0; i < descriptorsMRGBA.rows(); i++ )
+        { double dist = matchesList.get(i).distance;
+            if( dist < min_dist ) min_dist = dist;
+            if( dist > max_dist ) max_dist = dist;
+        }
+
+        LinkedList<DMatch> good_matches = new LinkedList<DMatch>();
+
+        for( int i = 0; i < descriptorsMRGBA.rows(); i++ ) {
+            if (matchesList.get(i).distance <= 1.5 * min_dist) {
+                good_matches.addLast(matchesList.get(i));
+
+            }
+        }
+
+
+//        Log.w("myApp", good_matches.toString());
+
+        Log.w("myApp", Integer.toString(good_matches.size()));
+
+        //    Log.w("myApp", good_matches.toString());
+
+        Mat clonedMrgba =mRgba.clone();
+       // try {
+
+        //tu jest problem ://
+       Features2d.drawMatches(mRgba, keyPointMRGBA, matInBacgroundToFind, keyPointBackGround, matches,clonedMrgba);
+       // }catch (Exception e){
+
+        //}
+        //Imgproc.cvtColor(clonedMrgba, clonedMrgba, Imgproc.COLOR_RGB2RGBA, 4);
+
+        Log.w("myAppmin_dist", Double.toString(min_dist*3));
+        Log.w("myAppmax_dist", Double.toString(max_dist));
+
+       // Size newSizeOfImageToPrint = new Size(mRgba.cols(), mRgba.rows());
+//        Imgproc.resize(clonedMrgba, matInBacgroundToFind, newSizeOfImageToPrint);
+
+        return clonedMrgba;
+
+
+
+/*
         LinkedList<DMatch> good_matches = new LinkedList<DMatch>();
         MatOfDMatch gm = new MatOfDMatch();
 
@@ -209,14 +259,22 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
             Log.w("myApp", "FoundSomething!!!!!!!!");
 
-            for (int i = 0; i < descriptorsBackGround.rows(); i++) {
-                if(matchesList.get(i).distance<80) // 3*min_dist is my threshold here
-                good_matches.addLast(matchesList.get(i));
+            for (int i = 0; i < descriptorsBackGround.rows()-1; i++) {
+
+                    if(matchesList.get(i).distance<80) // 3*min_dist is my threshold here
+
+                        good_matches.addLast(matchesList.get(i));
 
                 Log.w("myApp", matchesList.get(i).toString());
             }
         }
+
     gm.fromList(good_matches);
+
+        Features2d.drawMatches();
+*/
+
+
 
 
 
@@ -287,7 +345,6 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
 
 
-    return mRgba;
     }
 
     private void MatchTemplateDrawing() {
