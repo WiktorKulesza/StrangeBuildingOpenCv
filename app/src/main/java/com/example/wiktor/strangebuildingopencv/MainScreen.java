@@ -173,8 +173,23 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
+
         mRgba = inputFrame.rgba();
-        Mat matInBacgroundToFind = imageFromRootToCompare.clone();
+     //   Mat matInBacgroundToFind =inputFrame.rgba();
+
+        //
+
+       // mRgba =matInBacgroundToFind.clone();
+
+        Mat matInBacgroundToFind =imageFromRootToCompare;
+        // = imageFromRootToCompare.clone();
+
+
+         Size newSizeOfImageToPrint = new Size(mRgba.cols(), mRgba.rows());
+        //Imgproc.resize(matInBacgroundToFind, mRgba, newSizeOfImageToPrint);
+        mRgba = matInBacgroundToFind.clone();
+
+    //    Imgproc.cvtColor(matInBacgroundToFind, mRgba, Imgproc.COLOR_BGR2RGBA, 4);
 
         Log.w("myAppmax_dist", "workin!!!");
 
@@ -213,25 +228,61 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
         LinkedList<DMatch> good_matches = new LinkedList<DMatch>();
 
         for( int i = 0; i < descriptorsMRGBA.rows(); i++ ) {
-            if (matchesList.get(i).distance <= 1.5 * min_dist) {
+            if (matchesList.get(i).distance <= 1.4 * min_dist) {
                 good_matches.addLast(matchesList.get(i));
+                //Log.w("myAppSizzeee", "added"+Integer.toString(i));
+
 
             }
         }
 
+//        matchesList.get(1);
+
+//        Log.w("myAppPoint ", matchesList.get(1).toString());
+
+
+        //matches.fromList(good_matches);
+
+        //matches.get(1,1);
+    //    Log.w("myAppPoint ", matches.get(1,1).toString());
 
 //        Log.w("myApp", good_matches.toString());
 
-        Log.w("myApp", Integer.toString(good_matches.size()));
+        Log.w("myAppSizzeee", Integer.toString(good_matches.size()));
+
+        Log.w("myAppx", Integer.toString(matches.rows()));
+        Log.w("myAppy", Integer.toString(matches.cols()));
 
         //    Log.w("myApp", good_matches.toString());
-
         Mat clonedMrgba =mRgba.clone();
        // try {
 
+  /*      Size newSizeOfImageToPrint = new Size(960, 720);
+
+        Imgproc.resize(matInBacgroundToFind, matInBacgroundToFind, newSizeOfImageToPrint);
+        Imgproc.resize(mRgba, mRgba, newSizeOfImageToPrint);
+        Imgproc.resize(clonedMrgba, clonedMrgba, newSizeOfImageToPrint);
+*/
+        Scalar RED = new Scalar(255,0,0);
+        Scalar GREEN = new Scalar(0,255,0);
+        MatOfByte drawnMatches = new MatOfByte();
+
         //tu jest problem ://
-       Features2d.drawMatches(mRgba, keyPointMRGBA, matInBacgroundToFind, keyPointBackGround, matches,clonedMrgba);
-       // }catch (Exception e){
+       Features2d.drawMatches(mRgba, keyPointMRGBA,  matInBacgroundToFind, keyPointBackGround,matches,clonedMrgba,GREEN, RED,  drawnMatches, 0 );
+
+        //Features2d.drawMatches(mRgba,keyPointMRGBA,mRgba,keyPointMRGBA,matches,mRgba,GREEN, RED,  drawnMatches, Features2d.NOT_DRAW_SINGLE_POINTS);
+
+        Imgproc.resize(clonedMrgba, mRgba, newSizeOfImageToPrint);
+
+ //       Bitmap imageMatched = Bitmap.createBitmap(clonedMrgba.cols(), clonedMrgba.rows(), Bitmap.Config.RGB_565);//need to save bitmap
+    //    Utils.matToBitmap(clonedMrgba, imageMatched);
+    //    imageView.setImageBitmap(imageMatched);
+
+//        Features2d.drawMatches(mGray, keypoints, mObject, objectkeypoints, matches, mView);
+
+//        imageView.setImageBitmap(imageMatched);
+
+//        }catch (Exception e){
 
         //}
         //Imgproc.cvtColor(clonedMrgba, clonedMrgba, Imgproc.COLOR_RGB2RGBA, 4);
@@ -242,8 +293,9 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
        // Size newSizeOfImageToPrint = new Size(mRgba.cols(), mRgba.rows());
 //        Imgproc.resize(clonedMrgba, matInBacgroundToFind, newSizeOfImageToPrint);
 
-        return clonedMrgba;
-
+        //return mRgba;
+        //return clonedMrgba;
+        return mRgba;
 
 
 /*
@@ -348,7 +400,7 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
     }
 
     private void MatchTemplateDrawing() {
-        Mat resizedImageToPrint =  new Mat();
+        Mat resizedImageToPrint =   new Mat();
         //  KeyPoint1();
 
         Mat inputFramePoints = mRgba.clone();
