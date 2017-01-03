@@ -186,8 +186,11 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
 
          Size newSizeOfImageToPrint = new Size(mRgba.cols(), mRgba.rows());
+
+        Size newSizeOfImageToPrint1 = new Size(mRgba.cols()*2, mRgba.rows()*2);
+
         //Imgproc.resize(matInBacgroundToFind, mRgba, newSizeOfImageToPrint);
-        mRgba = matInBacgroundToFind.clone();
+
 
     //    Imgproc.cvtColor(matInBacgroundToFind, mRgba, Imgproc.COLOR_BGR2RGBA, 4);
 
@@ -255,6 +258,7 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
         //    Log.w("myApp", good_matches.toString());
         Mat clonedMrgba =mRgba.clone();
+        Imgproc.resize(clonedMrgba, clonedMrgba, newSizeOfImageToPrint1);
        // try {
 
   /*      Size newSizeOfImageToPrint = new Size(960, 720);
@@ -268,7 +272,7 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
         MatOfByte drawnMatches = new MatOfByte();
 
         //tu jest problem ://
-       Features2d.drawMatches(mRgba, keyPointMRGBA,  matInBacgroundToFind, keyPointBackGround,matches,clonedMrgba,GREEN, RED,  drawnMatches, 0 );
+       Features2d.drawMatches(mRgba, keyPointMRGBA,  matInBacgroundToFind, keyPointBackGround,matches,clonedMrgba,GREEN, RED,  drawnMatches, 1 );
 
         //Features2d.drawMatches(mRgba,keyPointMRGBA,mRgba,keyPointMRGBA,matches,mRgba,GREEN, RED,  drawnMatches, Features2d.NOT_DRAW_SINGLE_POINTS);
 
