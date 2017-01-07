@@ -175,24 +175,27 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
 
         mRgba = inputFrame.rgba();
-     //   Mat matInBacgroundToFind =inputFrame.rgba();
 
-        //
+        Mat clonedMrgba =mRgba.clone();
 
-       // mRgba =matInBacgroundToFind.clone();
 
         Mat matInBacgroundToFind =imageFromRootToCompare;
-        // = imageFromRootToCompare.clone();
+
+         Size newSizeOfImageToPrint = new Size(mRgba.cols()+matInBacgroundToFind.cols(), mRgba.rows()+matInBacgroundToFind.rows());
+
+        Size newSizeOfImageToPrint1 = new Size(mRgba.cols(), mRgba.rows());
 
 
-         Size newSizeOfImageToPrint = new Size(mRgba.cols(), mRgba.rows());
+        Imgproc.resize(clonedMrgba, clonedMrgba, newSizeOfImageToPrint);
 
-        Size newSizeOfImageToPrint1 = new Size(mRgba.cols()*2, mRgba.rows()*2);
-
-        //Imgproc.resize(matInBacgroundToFind, mRgba, newSizeOfImageToPrint);
-
+        Log.w("myAppheigh", Double.toString(newSizeOfImageToPrint.height));
+        Log.w("myAppwidth", Double.toString(newSizeOfImageToPrint.width));
 
     //    Imgproc.cvtColor(matInBacgroundToFind, mRgba, Imgproc.COLOR_BGR2RGBA, 4);
+
+        Point p = new Point(0.0,0.0);
+        Mat submatOfmRgbaFrame = mRgba.submat(0, 720,0, 960);
+        DrawImageOnMatchingArea(mRgba,clonedMrgba,p,submatOfmRgbaFrame);
 
         Log.w("myAppmax_dist", "workin!!!");
 
@@ -228,7 +231,7 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
             if( dist > max_dist ) max_dist = dist;
         }
 
-        LinkedList<DMatch> good_matches = new LinkedList<DMatch>();
+        LinkedList<DMatch> good_matches = new LinkedList    <DMatch>();
 
         for( int i = 0; i < descriptorsMRGBA.rows(); i++ ) {
             if (matchesList.get(i).distance <= 1.4 * min_dist) {
@@ -239,12 +242,13 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
             }
         }
 
-//        matchesList.get(1);
-
-//        Log.w("myAppPoint ", matchesList.get(1).toString());
 
 
-        //matches.fromList(good_matches);
+        matches.fromList(good_matches);
+
+
+
+      //  keyPointMRGBA.fromList();
 
         //matches.get(1,1);
     //    Log.w("myAppPoint ", matches.get(1,1).toString());
@@ -257,8 +261,8 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
         Log.w("myAppy", Integer.toString(matches.cols()));
 
         //    Log.w("myApp", good_matches.toString());
-        Mat clonedMrgba =mRgba.clone();
-        Imgproc.resize(clonedMrgba, clonedMrgba, newSizeOfImageToPrint1);
+
+      //  Imgproc.resize(clonedMrgba, clonedMrgba, newSizeOfImageToPrint);
        // try {
 
   /*      Size newSizeOfImageToPrint = new Size(960, 720);
@@ -271,12 +275,20 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
         Scalar GREEN = new Scalar(0,255,0);
         MatOfByte drawnMatches = new MatOfByte();
 
-        //tu jest problem ://
        Features2d.drawMatches(mRgba, keyPointMRGBA,  matInBacgroundToFind, keyPointBackGround,matches,clonedMrgba,GREEN, RED,  drawnMatches, 1 );
 
         //Features2d.drawMatches(mRgba,keyPointMRGBA,mRgba,keyPointMRGBA,matches,mRgba,GREEN, RED,  drawnMatches, Features2d.NOT_DRAW_SINGLE_POINTS);
 
-        Imgproc.resize(clonedMrgba, mRgba, newSizeOfImageToPrint);
+
+        Log.w("myAppClonedImage", Integer.toString(clonedMrgba.width()));
+        Log.w("myAppClonedImage", Integer.toString(clonedMrgba.height()));
+
+
+
+        Imgproc.resize(clonedMrgba, clonedMrgba, newSizeOfImageToPrint1);
+
+        Log.w("myAppClonedImage", Integer.toString(clonedMrgba.width()));
+        Log.w("myAppClonedImage", Integer.toString(clonedMrgba.height()));
 
  //       Bitmap imageMatched = Bitmap.createBitmap(clonedMrgba.cols(), clonedMrgba.rows(), Bitmap.Config.RGB_565);//need to save bitmap
     //    Utils.matToBitmap(clonedMrgba, imageMatched);
@@ -294,12 +306,8 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
         Log.w("myAppmin_dist", Double.toString(min_dist*3));
         Log.w("myAppmax_dist", Double.toString(max_dist));
 
-       // Size newSizeOfImageToPrint = new Size(mRgba.cols(), mRgba.rows());
-//        Imgproc.resize(clonedMrgba, matInBacgroundToFind, newSizeOfImageToPrint);
 
-        //return mRgba;
-        //return clonedMrgba;
-        return mRgba;
+        return clonedMrgba;
 
 
 /*
@@ -447,6 +455,20 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
         Log.w("myAppmatchLocx", Double.toString(matchLoc.x) +"   " +Double.toString(matchLoc.x+200));
         Log.w("myAppmatchLocy", Double.toString(matchLoc.y)+ "   "+ Double.toString(matchLoc.y+200));
+
+//        Imgproc.rectangle(mRgba, matchLoc, new Point(matchLoc.x + 200,matchLoc.y + 200), new Scalar(0, 255, 0));
+
+        resizedImageToPrint.copyTo(submatOfmRgbaFrame);
+    }
+
+    private void DrawImageOnMatchingArea(Mat resizedImageToPrint, Mat outputImage, Point matchLoc, Mat submatOfmRgbaFrame) {
+       // if(mRgba.width()>(matchLoc.x+ xValImageToPrint) && mRgba.height()>(matchLoc.y+ yValImageToPrint)){
+
+            submatOfmRgbaFrame = outputImage.submat((int) matchLoc.y, (int) matchLoc.y + 720, (int) matchLoc.x, (int) matchLoc.x + 1280);
+     //   }
+
+        Log.w("myAppmatchLocx", Double.toString(matchLoc.x) +"   " +Double.toString(matchLoc.x+720));
+        Log.w("myAppmatchLocy", Double.toString(matchLoc.y)+ "   "+ Double.toString(matchLoc.y+960));
 
 //        Imgproc.rectangle(mRgba, matchLoc, new Point(matchLoc.x + 200,matchLoc.y + 200), new Scalar(0, 255, 0));
 
