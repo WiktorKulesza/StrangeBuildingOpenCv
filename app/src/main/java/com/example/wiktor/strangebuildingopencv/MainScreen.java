@@ -18,17 +18,12 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 
-import org.opencv.core.Mat;
-
-
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.Point;
 import org.opencv.core.Size;
 import org.opencv.core.CvType;
 import org.opencv.core.Core.MinMaxLocResult;
 
-
-////
 
 import org.opencv.imgproc.Imgproc;
 
@@ -37,13 +32,12 @@ import org.opencv.core.KeyPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.features2d.Features2d;
 
-
-
 import org.opencv.imgcodecs.Imgcodecs;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -62,6 +56,8 @@ import org.opencv.android.Utils;
 import org.opencv.core.MatOfDMatch;
 import org.opencv.core.Scalar;
 import org.opencv.core.MatOfByte;
+
+
 
 
 public class MainScreen extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
@@ -181,7 +177,6 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
-
         mRgba = inputFrame.rgba();
 
         Mat clonedMrgba=blackImage.clone();
@@ -196,16 +191,13 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
         Imgproc.resize(clonedMrgba, clonedMrgba, newSizeOfImageToPrint);
 
-        Log.w("myAppheigh", Double.toString(newSizeOfImageToPrint.height));
-        Log.w("myAppwidth", Double.toString(newSizeOfImageToPrint.width));
+       // Log.w("myAppheigh", Double.toString(newSizeOfImageToPrint.height));
+       // Log.w("myAppwidth", Double.toString(newSizeOfImageToPrint.width));
 
-    //    Imgproc.cvtColor(matInBacgroundToFind, mRgba, Imgproc.COLOR_BGR2RGBA, 4);
-
-        //Point p = new Point(0.0,0.0);
         Mat submatOfmRgbaFrame = clonedMrgba.submat(0, mRgba.rows(),0, mRgba.cols());
         DrawImageOnMatchingArea(mRgba,clonedMrgba,submatOfmRgbaFrame);
 
-        Log.w("myAppmax_dist", "workin!!!");
+        //Log.w("myAppmax_dist", "workin!!!");
 
         FeatureDetector Orbdetector = FeatureDetector.create(FeatureDetector.ORB);
         DescriptorExtractor OrbExtractor = DescriptorExtractor.create(DescriptorExtractor.ORB);
@@ -244,49 +236,100 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
         for( int i = 0; i < descriptorsMRGBA.rows(); i++ ) {
             if (matchesList.get(i).distance <= 1.4 * min_dist) {
                 good_matches.addLast(matchesList.get(i));
-                //Log.w("myAppSizzeee", "added"+Integer.toString(i));
-
             }
         }
 
         matches.fromList(good_matches);
-
-      //  keyPointMRGBA.fromList();
-
-        //matches.get(1,1);
-    //    Log.w("myAppPoint ", matches.get(1,1).toString());
-
-//        Log.w("myApp", good_matches.toString());
-
-        Log.w("myAppSizzeee", Integer.toString(good_matches.size()));
+        Log.w("myAppgoodmatches", Integer.toString(good_matches.size()));
 
         Log.w("myAppx", Integer.toString(matches.rows()));
         Log.w("myAppy", Integer.toString(matches.cols()));
 
-        //    Log.w("myApp", good_matches.toString());
-
-      //  Imgproc.resize(clonedMrgba, clonedMrgba, newSizeOfImageToPrint);
-       // try {
-
-  /*      Size newSizeOfImageToPrint = new Size(960, 720);
-
-        Imgproc.resize(matInBacgroundToFind, matInBacgroundToFind, newSizeOfImageToPrint);
-        Imgproc.resize(mRgba, mRgba, newSizeOfImageToPrint);
-        Imgproc.resize(clonedMrgba, clonedMrgba, newSizeOfImageToPrint);
-*/
         Scalar RED = new Scalar(255,0,0);
         Scalar GREEN = new Scalar(0,255,0);
         MatOfByte drawnMatches = new MatOfByte();
 
-       Features2d.drawMatches(mRgba, keyPointMRGBA,  matInBacgroundToFind, keyPointBackGround,matches,clonedMrgba,GREEN, RED,  drawnMatches, 1 );
+           Features2d.drawMatches(mRgba, keyPointMRGBA,  matInBacgroundToFind, keyPointBackGround,matches,clonedMrgba,GREEN, RED,  drawnMatches, 1 );
 
-        //Features2d.drawMatches(mRgba,keyPointMRGBA,mRgba,keyPointMRGBA,matches,mRgba,GREEN, RED,  drawnMatches, Features2d.NOT_DRAW_SINGLE_POINTS);
+        //////////////////////////////////////////////////////////////////////////
+
+        LinkedList<Point> objList = new LinkedList<Point>();
+        LinkedList<Point> sceneList = new LinkedList<Point>();
+
+        List<KeyPoint> keypoints_objectList = keyPointBackGround.toList();
+        List<KeyPoint> keypoints_sceneList = keyPointMRGBA.toList();
+try {
+    for (int i = 0; i < good_matches.size(); i++) {
+        objList.addLast(keypoints_objectList.get(good_matches.get(i).trainIdx).pt);
+        sceneList.addLast(keypoints_sceneList.get(good_matches.get(i).queryIdx).pt);
+    }
+
+    MatOfPoint2f obj = new MatOfPoint2f();
+    obj.fromList(objList);
+
+    MatOfPoint2f scene = new MatOfPoint2f();
+    scene.fromList(sceneList);
+
+    Log.w("myAppobjcols", Integer.toString(obj.cols()));
+    Log.w("myAppobjrows", Integer.toString(obj.rows()));
+
+    Log.w("myAppscenecols", Integer.toString(scene.cols()));
+    Log.w("myAppscenerows", Integer.toString(scene.rows()));
+
+    Mat H =new Mat();
+
+    H = Calib3d.findHomography(obj, scene,  Calib3d.RANSAC, 1);
 
 
+    Mat obj_corners = new Mat(4, 1, CvType.CV_32FC2);
+    Mat scene_corners = new Mat(4, 1, CvType.CV_32FC2);
+
+    for (int i = 0; i < H.cols(); i++){
+        for (int j = 0; j < H.rows(); j++){
+            System.out.println("[" + i + "," + j + "] = " + Arrays.toString(H.get(j, i)));
+        }
+    }
+
+
+
+
+    obj_corners.put(0, 0, new double[]{0, 0});
+    obj_corners.put(1, 0, new double[]{matInBacgroundToFind.rows(), 0});
+    obj_corners.put(2, 0, new double[]{matInBacgroundToFind.rows(), matInBacgroundToFind.cols()});
+    obj_corners.put(3, 0, new double[]{0, matInBacgroundToFind.cols()});
+
+    if(obj_corners!= null && scene_corners != null && H!=null) {
+      try {
+          Core.perspectiveTransform(obj_corners, scene_corners, H);
+      }catch (Exception w){
+          Log.w("myAppscenecols", "wyjatek ");
+      }
+    }
+
+    Point p1 = new Point(scene_corners.get(0, 0));
+    Point p2 = new Point(scene_corners.get(2, 0));
+/*
+    double submatsizex = p2.x - p1.x;
+    double submatsizey = p2.y - p1.y;
+
+    Submat sm1 = new submat();
+  */
+    Imgproc.line(clonedMrgba, p1, p2, new Scalar(0,0,255), 4);
+
+    Imgproc.line(clonedMrgba, new Point(scene_corners.get(0, 0)), new Point(scene_corners.get(1, 0)), new Scalar(0, 255, 0), 4);
+    Imgproc.line(clonedMrgba, new Point(scene_corners.get(1, 0)), new Point(scene_corners.get(2, 0)), new Scalar(0, 255, 0), 4);
+    Imgproc.line(clonedMrgba, new Point(scene_corners.get(2, 0)), new Point(scene_corners.get(3, 0)), new Scalar(0, 255, 0), 4);
+    Imgproc.line(clonedMrgba, new Point(scene_corners.get(3, 0)), new Point(scene_corners.get(0, 0)), new Scalar(0, 255, 0), 4);
+}
+catch (ArrayIndexOutOfBoundsException e) {
+
+      Log.w("myAppClonedImage", Integer.toString(clonedMrgba.width()));
+}
+/*
         Log.w("myAppClonedImage", Integer.toString(clonedMrgba.width()));
         Log.w("myAppClonedImage", Integer.toString(clonedMrgba.height()));
 
-    //    Imgproc.resize(clonedMrgba, clonedMrgba, newSizeOfImageToPrint1);
+        // Imgproc.resize(clonedMrgba, clonedMrgba, newSizeOfImageToPrint1);
 
         Log.w("myAppClonedImage", Integer.toString(clonedMrgba.width()));
         Log.w("myAppClonedImage", Integer.toString(clonedMrgba.height()));
@@ -294,13 +337,11 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
         List<KeyPoint> keypoints1_List = keyPointMRGBA.toList();
         List<KeyPoint> keypoints2_List = keyPointBackGround.toList();
 
-
         LinkedList<Point> objList = new LinkedList<Point>();
         LinkedList<Point> sceneList = new LinkedList<Point>();
 
         for(int i=0;i<good_matches.size();i++)
         {
-
             objList.addLast(keypoints2_List.get(good_matches.get(i).trainIdx).pt);
             sceneList.addLast(keypoints1_List.get(good_matches.get(i).queryIdx).pt);
         }
@@ -310,22 +351,19 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
         obj.fromList(objList);
         scene.fromList(sceneList);
 
-        //output image
-       // Mat outputImg = new Mat();
 
-        Mat H = Calib3d.findHomography(obj, scene, Calib3d.RANSAC, 5);
-//       Mat H = Calib3d.findHomography(obj, scene,Calib3d.RANSAC, 5);
+        //Mat H = Calib3d.findHomography(obj, scene, Calib3d.RANSAC, 5);
+
+        Mat H = Calib3d.findHomography(obj, scene);
+
         Mat tmp_corners = new Mat(4,1,CvType.CV_32FC2);
         Mat scene_corners = new Mat(4,1,CvType.CV_32FC2);
 
         //get corners from object
         tmp_corners.put(0, 0, new double[] {0,0});
         tmp_corners.put(1, 0, new double[] {matInBacgroundToFind.cols(),0});
-    //    tmp_corners.put(2, 0, new double[] {matInBacgroundToFind.cols(),matInBacgroundToFind.rows()});
-    //    tmp_corners.put(3, 0, new double[] {0,matInBacgroundToFind.rows()});
-
-
-
+        tmp_corners.put(2, 0, new double[] {matInBacgroundToFind.cols(),matInBacgroundToFind.rows()});
+        tmp_corners.put(3, 0, new double[] {0,matInBacgroundToFind.rows()});
 
         Core.perspectiveTransform(tmp_corners,scene_corners, H);
 
@@ -338,11 +376,12 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
  //       Log.w("myAppmin_dist", Double.toString(min_dist*3));
  //       Log.w("myAppmax_dist", Double.toString(max_dist));
-
+*/
         Imgproc.resize(clonedMrgba, clonedMrgba, newSizeOfImageToPrint1);
 
-
         return clonedMrgba;
+
+
 
 
 /*
@@ -479,7 +518,7 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
             DrawImageOnMatchingArea(resizedImageToPrint, matchLoc, submatOfmRgbaFrame);
         }
 
-        Log.w("myAppmaxVal", Double.toString(mmr.maxVal)) ;
+      //  Log.w("myAppmaxVal", Double.toString(mmr.maxVal)) ;
     }
 
     private void DrawImageOnMatchingArea(Mat resizedImageToPrint, Point matchLoc, Mat submatOfmRgbaFrame) {
@@ -488,8 +527,8 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
              submatOfmRgbaFrame = mRgba.submat((int) matchLoc.y, (int) matchLoc.y + yValImageToPrint, (int) matchLoc.x, (int) matchLoc.x + xValImageToPrint);
         }
 
-        Log.w("myAppmatchLocx", Double.toString(matchLoc.x) +"   " +Double.toString(matchLoc.x+200));
-        Log.w("myAppmatchLocy", Double.toString(matchLoc.y)+ "   "+ Double.toString(matchLoc.y+200));
+      //  Log.w("myAppmatchLocx", Double.toString(matchLoc.x) +"   " +Double.toString(matchLoc.x+200));
+      //  Log.w("myAppmatchLocy", Double.toString(matchLoc.y)+ "   "+ Double.toString(matchLoc.y+200));
 
 //        Imgproc.rectangle(mRgba, matchLoc, new Point(matchLoc.x + 200,matchLoc.y + 200), new Scalar(0, 255, 0));
 
