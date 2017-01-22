@@ -214,7 +214,7 @@ public class MainScreen extends AppCompatActivity implements CameraBridgeViewBas
 
         //Log.w("myAppmax_dist", "workin!!!");
 
-        FeatureDetector Orbdetector = FeatureDetector.create(FeatureDetector.ORB);
+        FeatureDetector Orbdetector = FeatureDetector.create(FeatureDetector.FAST);
         DescriptorExtractor OrbExtractor = DescriptorExtractor.create(DescriptorExtractor.ORB);
         DescriptorMatcher matcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_HAMMING);
 
